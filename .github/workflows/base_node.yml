@@ -23,17 +23,17 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install dependencies
+      - name: node-install
         run: npm install
 
-      - name: Lint
+      - name: node-lint
         run: npm run lint
 
-      - name: Prettier
+      - name: node-prettier
         run: npm run format:ci
 
-      - name: Run tests
+      - name: node-tests
         run: npm test
 
-      - name: Build project
+      - name: node-build
         run: npm run build
