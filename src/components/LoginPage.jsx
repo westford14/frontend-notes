@@ -1,20 +1,58 @@
 import React, { useState } from "react";
+import axios from "axios";
+import logger from "../utils/logger";
+import bcrypt from "bcryptjs";
+
+const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+const ADMIN_USER = process.env.REACT_APP_ADMIN_USER;
 
 const LoginPage = ({ onLoginSuccess }) => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    logger.info("login attempt starting", { username });
 
-    const validEmail = process.env.REACT_APP_USERNAME;
-    const validPassword = process.env.REACT_APP_PASSWORD;
+    const adminResponse = await axios.post(BASE_URL + "/v1/auth/token", {
+      username: ADMIN_USER,
+    });
 
-    if (email === validEmail && password === validPassword) {
-      onLoginSuccess();
+    if (adminResponse.status === 200) {
+      logger.info("token gathering succeeded", { username });
     } else {
-      setError("Invalid email or password");
+      logger.error("token gathering attempt failed", { username });
+      setError(adminResponse.data.message);
+    }
+
+    try {
+      const response = await axios.get(
+        BASE_URL + "/v1/users/username/" + username,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + adminResponse.data.access_token,
+          },
+        },
+      );
+
+      if (response.status === 200) {
+        logger.info("login attempt succeeded", { username });
+        const dbPassword = response.data.password_hash;
+        if (bcrypt.compareSync(password, dbPassword)) {
+          onLoginSuccess();
+        } else {
+          logger.error("login attempt failed", { username });
+          setError(response.data.message);
+        }
+      } else {
+        logger.error("login attempt failed", { username });
+        setError(response.data.message);
+      }
+    } catch (error) {
+      logger.error("failed login attempt", { error });
+      setError("Invalid username or password");
     }
   };
 
@@ -23,10 +61,10 @@ const LoginPage = ({ onLoginSuccess }) => {
       <h2>Login</h2>
       <form onSubmit={handleLogin} style={styles.form}>
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="username"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           style={styles.input}
         />
         <input
