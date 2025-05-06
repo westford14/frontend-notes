@@ -3,6 +3,7 @@ import { AuthContext } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Header = ({ handleToggleDarkMode }) => {
+  // eslint-disable-next-line no-unused-vars
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 

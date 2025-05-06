@@ -9,7 +9,7 @@ import { AuthContext } from "./AuthContext";
 const BASE_URL = process.env.REACT_APP_BACKEND_URL;
 const ADMIN_USER = process.env.REACT_APP_ADMIN_USER;
 
-const LoginPage = ({}) => {
+const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

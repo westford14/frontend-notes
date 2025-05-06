@@ -9,7 +9,7 @@ import { v4 as uuid } from "uuid";
 const BASE_URL = process.env.REACT_APP_BACKEND_URL;
 const ADMIN_USER = process.env.REACT_APP_ADMIN_USER;
 
-const SignupPage = ({}) => {
+const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
