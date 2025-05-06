@@ -1,15 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import logger from "../utils/logger";
 import bcrypt from "bcryptjs";
+import { useNavigate } from "react-router-dom";
+import "../styles/AuthForm.css";
+import { AuthContext } from "./AuthContext";
 
 const BASE_URL = process.env.REACT_APP_BACKEND_URL;
 const ADMIN_USER = process.env.REACT_APP_ADMIN_USER;
 
-const LoginPage = ({ onLoginSuccess }) => {
+const LoginPage = ({}) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -41,7 +46,28 @@ const LoginPage = ({ onLoginSuccess }) => {
         logger.info("login attempt succeeded", { username });
         const dbPassword = response.data.password_hash;
         if (bcrypt.compareSync(password, dbPassword)) {
-          onLoginSuccess();
+          const data = JSON.stringify({
+            username: username,
+            password_hash: dbPassword,
+          });
+          const loginResponse = await axios.post(
+            BASE_URL + "/v1/auth/login",
+            data,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + adminResponse.data.access_token,
+              },
+            },
+          );
+
+          const loggedInUser = {
+            name: username,
+            token: loginResponse.data.access_token,
+            id: response.data.id,
+          };
+          login(loggedInUser);
+          navigate("/home");
         } else {
           logger.error("login attempt failed", { username });
           setError(response.data.message);
@@ -57,61 +83,30 @@ const LoginPage = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div style={styles.container}>
+    <div className="auth-container">
       <h2>Login</h2>
-      <form onSubmit={handleLogin} style={styles.form}>
+      <form onSubmit={handleLogin}>
         <input
           type="username"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          style={styles.input}
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
         />
-        {error && <p style={styles.error}>{error}</p>}
-        <button type="submit" style={styles.button}>
-          Login
-        </button>
+        {error && <p>{error}</p>}
+        <button type="submit">Login</button>
       </form>
+      <p>
+        Don't have an account?{" "}
+        <button onClick={() => navigate("/signup")}>Sign Up</button>
+      </p>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    maxWidth: "400px",
-    margin: "50px auto",
-    padding: "20px",
-    border: "1px solid #ccc",
-    borderRadius: "8px",
-    textAlign: "center",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "15px",
-  },
-  input: {
-    padding: "10px",
-    fontSize: "16px",
-  },
-  button: {
-    padding: "10px",
-    backgroundColor: "#007bff",
-    color: "#fff",
-    border: "none",
-    fontSize: "16px",
-    cursor: "pointer",
-  },
-  error: {
-    color: "red",
-  },
 };
 
 export default LoginPage;

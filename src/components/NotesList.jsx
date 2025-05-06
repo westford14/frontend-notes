@@ -9,7 +9,7 @@ const NotesList = ({ notes, handleAddNote, handleDeleteNote }) => {
         <Note
           id={note.id}
           text={note.text}
-          date={note.date}
+          date={note.updated_at}
           handleDeleteNote={handleDeleteNote}
         />
       ))}

@@ -1,6 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
+import { AuthContext } from "./AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Header = ({ handleToggleDarkMode }) => {
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   return (
     <div className="header">
       <h1>Notes</h1>
@@ -11,6 +21,9 @@ const Header = ({ handleToggleDarkMode }) => {
         className="save"
       >
         Toggle Mode
+      </button>
+      <button onClick={handleLogout} className="save">
+        Logout
       </button>
     </div>
   );
