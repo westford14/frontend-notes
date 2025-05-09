@@ -16,9 +16,12 @@ const MainApp = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
+    const data = {
+      "id": user.id
+    }
     const fetchData = async () => {
       try {
-        const response = await axios.get(BASE_URL + "/v1/notes", {
+        const response = await axios.post(BASE_URL + "/v1/notes/user", data, {
           headers: {
             "Content-Type": "application/json",
             Authorization: "Bearer " + user.token,
