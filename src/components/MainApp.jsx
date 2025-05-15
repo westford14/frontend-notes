@@ -121,7 +121,7 @@ const MainApp = () => {
         },
       },
     );
-    if (response.status === 201) {
+    if (response.status === 200) {
       logger.info("update stats");
     } else {
       logger.error("could not update stats", { countResponse });
