@@ -28,7 +28,6 @@ const MainApp = () => {
           },
         });
         if (response.status === 200) {
-          console.log("response", response);
           const savedNotes = response.data;
           logger.info("parsed savedNotes: ", savedNotes);
           if (savedNotes) {
@@ -68,6 +67,26 @@ const MainApp = () => {
       },
     );
 
+    const countResponse = await axios.post(
+      BASE_URL + "/v1/stats/user",
+      {
+        user_id: user.id,
+        value: 1,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + user.token,
+        },
+      },
+    );
+    if (response.status === 201) {
+      logger.info("update stats with: " + newNote);
+    } else {
+      logger.error("could not update stats", { countResponse });
+      setError("Backend issue updating stats");
+    }
+
     if (response.status === 201) {
       const newNotes = [...notes, newNote];
       setNotes(newNotes);
@@ -88,8 +107,28 @@ const MainApp = () => {
       },
     });
     logger.info("response", response);
+
+    const countResponse = await axios.post(
+      BASE_URL + "/v1/stats/user",
+      {
+        user_id: user.id,
+        value: -1,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + user.token,
+        },
+      },
+    );
+    if (response.status === 201) {
+      logger.info("update stats");
+    } else {
+      logger.error("could not update stats", { countResponse });
+      setError("Backend issue updating stats");
+    }
+
     if (response.status === 200) {
-      console.log("response", response);
       logger.info("removed note", id);
     } else {
       logger.error("could not delete note", { response });

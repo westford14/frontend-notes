@@ -5,6 +5,8 @@ import "../styles/AuthForm.css";
 import bcrypt from "bcryptjs";
 import axios from "axios";
 import { v4 as uuid } from "uuid";
+import PasswordChecklist from "react-password-checklist";
+import validator from "validator";
 
 const BASE_URL = process.env.REACT_APP_BACKEND_URL;
 const ADMIN_USER = process.env.REACT_APP_ADMIN_USER;
@@ -12,6 +14,7 @@ const ADMIN_USER = process.env.REACT_APP_ADMIN_USER;
 const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordAgain, setPasswordAgain] = useState("");
   const [username, setUsername] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -33,6 +36,9 @@ const SignupPage = () => {
     }
 
     try {
+      if (!validator.isEmail(email)) {
+        setError("Not a valid email address -- please try again");
+      }
       const salt = bcrypt.genSaltSync(10);
       const hashedPassword = bcrypt.hashSync(password, salt);
       const data = JSON.stringify({
@@ -95,6 +101,20 @@ const SignupPage = () => {
               required
             />
             <br />
+            <input
+              type="password"
+              placeholder="Re-Enter Password"
+              value={passwordAgain}
+              onChange={(e) => setPasswordAgain(e.target.value)}
+              required
+            />
+            <br />
+            <PasswordChecklist
+              rules={["minLength", "specialChar", "number", "capital", "match"]}
+              minLength={5}
+              value={password}
+              valueAgain={passwordAgain}
+            />
             {error && <p>{error}</p>}
             <button type="submit">Sign Up</button>
           </form>
